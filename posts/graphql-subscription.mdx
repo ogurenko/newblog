@@ -1,0 +1,427 @@
+---
+title: GraphQL Subscription
+publishedAt: 2021-12-20
+description: To create real-time applications, GraphQL Subscription offers everything you need to implement it in your application ...
+category: "API"
+---
+
+# GraphQL Subscription
+
+## Introduction to GraphQL Subscription
+
+{" "}
+
+<br />
+
+Finally, we will learn how to use GraphQL Subscription to get real-time updates from the server.
+The GraphQL Subscription is a way to get real-time updates from the server. It's used the WebSocket protocol, instead of HTTP, because it's more efficient, two-way communication. The server sends updates to the client, and the client sends updates to the server. **Subscription** means that the client is not required to send a request to the server every time it wants to get an update. The connection between the client and the server is maintained by the server, using the WebSocket API protocol.
+For implementing GraphQL Subscription, we will use the [subscription-transport-ws](https://www.npmjs.com/package/subscriptions-transport-ws) library.
+There are many examples in practical projects, but the most popular are: google maps, real-time flight tracking, autonomous vehicles, chat applications, vehicle location, seat reservations, ticket reservations, etc.
+
+{" "}
+
+<br />
+<br />
+
+## Implementing GraphQL Subscription
+
+{" "}
+
+<br />
+
+Create a new project and add the following dependencies:
+
+```
+npm install express express-graphql graphql-playground-middleware-express graphql-subscriptions subscriptions-transport-ws ws
+```
+
+or use yarn:
+
+```
+yarn add express express-graphql graphql-playground-middleware-express graphql-subscriptions subscriptions-transport-ws ws
+```
+
+A useful tool for developing purposes is nodemon, which automatically restarts the server when the code changes.
+
+```
+npm install -D nodemon
+// or
+yarn add -D nodemon
+```
+
+{" "}
+
+<br />
+
+## Creating a server
+
+{" "}
+
+<br />
+
+Creating a server begins with creating a new schema. The schema is a collection of GraphQL types, which are used to define the data that the server can return. Let's say we have a collection of posts, and we want to follow published posts in real-time, using GraphQL Subscription.
+
+{" "}
+
+<br />
+
+> Note: To use ES6 syntax you must provide the "type":"module" property in package.json.
+
+{" "}
+
+<br />
+
+### Types
+
+{" "}
+
+<br />
+
+Let's define the type of post. Create a folder called types in the root of the project. Create a file called `post.js` in the `types` folder.
+
+- post.js
+
+```
+import {
+  GraphQLID,
+  GraphQLNonNull,
+  GraphQLObjectType,
+  GraphQLString,
+} from "graphql";
+
+export const PostType = new GraphQLObjectType({
+  name: "Post",
+  fields: () => ({
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+    },
+    title: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+    content: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+  }),
+});
+
+
+export const PostSubscription = new GraphQLObjectType({
+  name: "PostSubscription",
+  fields: () => ({
+    id: {type: new GraphQLNonNull(GraphQLID)},
+    title: {type: new GraphQLNonNull(GraphQLString)},
+    content: {type: new GraphQLNonNull(GraphQLString)},
+  }),
+});
+```
+
+Let's define a query type, which is used to get the post, in the same folder.
+
+- query.js
+
+```
+import {
+  GraphQLID,
+  GraphQLObjectType,
+  GraphQLList,
+} from "graphql";
+import { PostType } from "./post.js";
+import { getPost, getPosts } from "../resolvers/resolvers.js";
+
+
+const Query = new GraphQLObjectType({
+  name: "Query",
+  fields: () => ({
+    post: {
+      type: PostType,
+      args: {
+        id: {
+          type: GraphQLID,
+        },
+      },
+      resolve: (parent, args) => getPost(args.id),
+    },
+    posts: {
+      type: new GraphQLList(PostType),
+      resolve: () => getPosts(),
+    },
+  }),
+});
+
+
+export default Query;
+```
+
+We defined the PostType and the Query type. The PostType is used to define the data that the server can return. The Query type is used to define the data that the client can request. Also, we defined the PostSubscription type, which is used to define the data that the client can subscribe to. The resolvers are defined in the resolvers.js file, for better usability and separation of concerns.
+
+Let's create a mutation type, which is used to create, update and delete a new post, in the same folder.
+
+- mutation.js
+
+```
+import {
+  GraphQLID,
+  GraphQLNonNull,
+  GraphQLObjectType,
+} from "graphql";
+import { addPost, updatePost, deletePost } from "../resolvers/resolvers.js";
+import { PostType } from "./post.js";
+import { InputPostType } from "./inputPost.js";
+
+
+const Mutation = new GraphQLObjectType({
+  name: "Mutation",
+  fields: () => ({
+    addPost: {
+      type: new GraphQLNonNull(PostType),
+      args: {
+        input: {
+          type: new GraphQLNonNull(InputPostType),
+        },
+      },
+      resolve: async (parent, args, {pubsub}) => {
+          const {title, content} = args.input;
+
+          return addPost(title, content, pubsub);
+      }
+    },
+    updatePost: {
+      type: PostType,
+      args: {
+        input: {
+          type: new GraphQLNonNull(InputPostType),
+        },
+      },
+      resolve: async (parent, , {pubsub}) => {
+            const {id, title, content} = args.input;
+
+            return updatePost(id, title, content, pubsub);
+      },
+    },
+    deletePost: {
+      type: new GraphQLNonNull(PostType),
+      args: {
+        id: {
+          type: new GraphQLNonNull(GraphQLID),
+        },
+      },
+      resolve: (parent, args, {pubsub}) => {
+          const { id } = args;
+          return deletePost(id, pubsub);
+      },
+    },
+  }),
+});
+
+
+export default Mutation;
+```
+
+Arguments are defined in the InputPost type. The InputPost is used to define the data that the client can send to the server. Arguably, the InputPost is not necessary, but it's good practice to define the data that the client can send to the server.
+
+- inputPost.js
+
+```
+import {
+  GraphQLID,
+  GraphQLNonNull,
+  GraphQLInputObjectType,
+  GraphQLString,
+} from "graphql";
+
+
+export const InputPostType = new GraphQLInputObjectType({
+  name: "InputPost",
+  fields: () => ({
+    id: {
+      type: new GraphQLNonNull(GraphQLID),
+    },
+    title: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+    content: {
+      type: new GraphQLNonNull(GraphQLString),
+    },
+  }),
+});
+```
+
+And finally, we can create a subscription type, which is used to subscribe to the post.
+
+- subscription.js
+
+```
+import { GraphQLNonNull, GraphQLObjectType } from "graphql";
+import { PostSubscription } from "./post.js";
+
+
+const Subscription = new GraphQLObjectType({
+  name: "Subscription",
+  fields: () => ({
+    post_added: {
+      type: new GraphQLNonNull(PostSubscription),
+      subscribe: (parent, args, {pubsub}) => pubsub.asyncIterator("NEW_POST"),
+      },
+    post_updated: {
+        type: new GraphQLNonNull(PostSubscription),
+        subscribe: (parent, args, {pubsub}) => pubsub.asyncIterator("POST_UPDATED"),
+      },
+    post_deleted: {
+            type: new GraphQLNonNull(PostSubscription),
+            subscribe: (parent, args, {pubsub}) => pubsub.asyncIterator("POST_DELETED"),
+        },
+    },
+  }),
+});
+
+
+export default Subscription;
+```
+
+{" "}
+
+<br />
+
+### Resolvers
+
+{" "}
+
+<br />
+
+Resolvers are defined in the resolvers.js file.
+
+- resolvers.js
+
+```
+import { posts } from "../data/posts.js";
+
+// Queries
+export const getPosts = () => posts;
+
+export const getPost = (id) => {
+  if (id < posts.length) {
+    return posts[id - 1];
+  }
+};
+
+
+// Mutations
+export const addPost = async (title, content, pubsub) => {
+  const id = posts.length + 1;
+  const newPost = {id, title, content};
+  posts.push(newPost);
+  await pubsub.publish("NEW_POST", {post_added: newPost});
+  return newPost;
+};
+
+export const updatePost = async (id, title, content, pubsub) => {
+  const post = posts.find(post => post.id === parseInt(id));
+
+  if (post) {
+    post.title = title;
+    post.content = content;
+  }
+  await pubsub.publish("POST_UPDATED", {post_updated: post});
+  return post;
+};
+
+
+export const deletePost = async (id, pubsub) => {
+  const post = posts.find(post => post.id === parseInt(id));
+
+  if (!post) {
+      throw new Error("Post not found");
+  }
+    posts.splice(posts.indexOf(post), 1);
+
+  await pubsub.publish("POST_DELETED", {post_deleted: post});
+  return post;
+};
+```
+
+Data is defined in the data.js file. You can find the data in the Github repository.
+Pubsub is a feature that publishes events to which clients can subscribe. Each of these events has a name, which is used to subscribe to the event (NEW_POST, POST_UPDATED, POST_DELETED). Based on the name, the asyncIterator method of the pubsub object is called and sends the event to the client. In the end, it remains to create a server to implement the subscription.
+
+{" "}
+
+<br />
+
+### Server
+
+{" "}
+
+<br />
+
+- index.js
+
+```
+import { GraphQLSchema, execute, subscribe } from "graphql";
+import { WebSocketServer } from "ws";
+import express from "express";
+import { graphqlHTTP } from "express-graphql";
+import { PubSub } from "graphql-subscriptions";
+import Query from "./types/query.js";
+import Mutation from "./types/mutation.js";
+import Subscription from "./types/subscription.js";
+import expressPlayground from "graphql-playground-middleware-express";
+import { SubscriptionServer } from "subscriptions-transport-ws";
+
+const app = express();
+const pubsub = new PubSub();
+const graphQLPlayground = expressPlayground.default;
+
+// define the GraphQL schema
+const schema = new GraphQLSchema({
+  query: Query,
+  mutation: Mutation,
+  subscription: Subscription,
+});
+
+
+ap.use("/graphql", graphqlHTTP({
+  schema,
+  context: { pubsub },
+}));
+
+app.use("/playground", graphQLPlayground({
+  endpoint: "/graphql",
+  subscriptionEndpoint: `/graphql`,
+}));
+
+
+const server = app.listen(4000, () => {
+
+const wss = new WebSocketServer({
+    server,
+    path: "/graphql",
+});
+
+SubscriptionServer.create(
+    {
+        schema,
+        execute,
+        subscribe,
+        onConnect: () => {
+           return { pubsub }
+        },
+    },
+    wss,
+);
+
+
+
+  console.log("Server is running on http://localhost:4000");
+});
+```
+
+Finally, open the browser and go to http://localhost:4000/playground. Enter the fields relevant to the Subscription type and click on the Run button. Event listening will be started.
+
+![Subscription](https://res.cloudinary.com/dragardelo/image/upload/v1640002054/blog/Subscription_cup8uu.png)
+
+Then,open another tab and create a post. The post will be added to the list of posts. the event will be published and should appear in the Subscription tab. This way, you can listen to the update and delete events, as well as the creation of a new post.
+
+![Subscription_2](https://res.cloudinary.com/dragardelo/image/upload/v1640010441/blog/Subscription_2_elmimj.png)
+
+The complete code can be seen in the Github repository [Link](https://github.com/ogurenko/graphql-api-subscription).
+
+To create real-time applications, GraphQL Subscription offers everything you need to implement it

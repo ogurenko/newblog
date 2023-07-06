@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../contentlayer.config.ts"],
+  "sourcesContent": ["import { defineDocumentType, makeSource } from \"contentlayer/source-files\";\r\nimport remarkGfm from \"remark-gfm\";\r\nimport rehypePrettyCode from \"rehype-pretty-code\";\r\nimport rehypeSlug from \"rehype-slug\";\r\nimport rehypeAutolinkHeadings from \"rehype-autolink-headings\";\r\n\r\nconst Post = defineDocumentType(() => ({\r\n  name: \"Post\",\r\n  filePathPattern: `**/*.mdx`,\r\n  contentType: \"mdx\",\r\n  fields: {\r\n    // title: { type: \"string\", required: true },\r\n    // date: { type: \"date\", required: true },\r\n  },\r\n  computedFields: {\r\n    url: {\r\n      type: \"string\",\r\n      resolve: (post) => `/posts/${post._raw.flattenedPath}`,\r\n    },\r\n  },\r\n}));\r\n\r\nexport default makeSource({\r\n  contentDirPath: \"./posts\",\r\n  documentTypes: [Post],\r\n  // mdx: {\r\n  //   remarkPlugins: [remarkGfm],\r\n  //   rehypePlugins: [rehypeSlug, [rehypePrettyCode]],\r\n  // },\r\n});\r\n"],
+  "mappings": ";AAAA,SAAS,oBAAoB,kBAAkB;AAM/C,IAAM,OAAO,mBAAmB,OAAO;AAAA,EACrC,MAAM;AAAA,EACN,iBAAiB;AAAA,EACjB,aAAa;AAAA,EACb,QAAQ;AAAA;AAAA;AAAA,EAGR;AAAA,EACA,gBAAgB;AAAA,IACd,KAAK;AAAA,MACH,MAAM;AAAA,MACN,SAAS,CAAC,SAAS,UAAU,KAAK,KAAK;AAAA,IACzC;AAAA,EACF;AACF,EAAE;AAEF,IAAO,8BAAQ,WAAW;AAAA,EACxB,gBAAgB;AAAA,EAChB,eAAe,CAAC,IAAI;AAAA;AAAA;AAAA;AAAA;AAKtB,CAAC;",
+  "names": []
+}

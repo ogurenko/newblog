@@ -1,0 +1,790 @@
+---
+title: Comprehensive Guide to GraphQL Clients
+publishedAt: 2022-04-07
+description: Comprehensive guide to GraphQL clients and additional libraries. Practical examples of data fetching techniques and methods ...
+category: "API"
+---
+
+# Comprehensive Guide to GraphQL Clients
+
+## Introduction
+
+As you already know, GraphQL is a query language for APIs. It is a declarative language, which means that it is easy to write queries. However, it is also a flexible language, which means that it is easy to write queries that are not declarative. This guide will help you to write declarative queries. Until now, you have created a server that returns data. However, you have not used the data in any way. This guide will help you to use the data in a declarative way.
+GraphQL clients are used to send queries to a GraphQL server. Requests are sent in the form of a query string. The response is returned in the form of a JSON object. The response is a JSON object that contains the data that is requested. Request are made to a GraphQL server using HTTP protocol, so you can use the same client as a client for RESTful APIs.
+
+# Getting Started
+
+## GraphQL IDE's
+
+IDE's are test tools to check the correctness of your queries. You can define your queries in the IDE and then send them to the server. The server will return the data that is requested if the query is correct. There are a lot of IDEs available.
+The most popular and the simplest IDE for GraphQL queries is [GraphiQL](https://www.graphqleditor.com/).
+The modern clone of GraphiQL is [GraphQL Playground](https://www.electronjs.org/apps/graphql-playground). The enviroment is cleaner and has some advanced features.
+The recent one IDE for GraphQL queries is [Apollo Explorer](https://studio.apollographql.com/).
+All-around tools as [Postman](https://www.getpostman.com/) and [Insomnia](https://www.insomnia.rest/) are great tools for testing either GraphQL queries or RESTful APIs.
+
+## Curl
+
+The tool for quickly sending queries to a GraphQL server is [curl](https://curl.haxx.se/). It is a command line tool that allows you to send simple queries to a GraphQL server.
+
+```
+curl  -X POST -H "Content-Type: application/json" -d '{"query": "{countries { name }}"}' 'https://countries.trevorblades.com/'
+```
+
+It is useful for debugging and quick testing.
+
+## Install ReactJS
+
+The first step is to install ReactJS as our library of choice for creating UI components.
+If you have not installed ReactJS, you can install it using the following command in command line:
+
+```
+npx create-react-app my-app
+cd my-app
+npm start
+```
+
+Now you are ready to deep dive into the GraphQL world.
+
+## Native Fetch
+
+Fetch is a native built-in JavaScript client for making HTTP requests. Let's see how to use fetch to send a query to a GraphQL server.
+To create a new react app, you can use (https:\\www.react.new).
+
+Create a file FetchData.js in the root of your project.
+
+```
+import { useState, useEffect } from "react";
+
+const FetchedData = () => {
+  const [country, setCountry] = useState();
+  const fetchData = async (req, res) => {
+    try {
+      const response = await fetch("https://countries.trevorblades.com/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          query: "{countries { name }}",
+        }),
+      });
+      const { data } = await response.json();
+
+      const countriesName = [];
+      data.countries.map((c) => countriesName.push(c.name));
+      setCountry(countriesName);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+  const countriesList = country?.map((c, index) => <ul key={index}>{c}</ul>);
+  return (
+    <>
+      <h1>Countries</h1>
+      {countriesList}
+    </>
+  );
+};
+
+export default FetchedData;
+```
+
+Then in App.js, you can use the component FetchedData.
+
+```
+import FetchedData from "./FetchData";
+
+export default function App() {
+return <FetchedData />;
+}
+```
+
+## Axios
+
+Axios is a JavaScript library for making HTTP requests. It is a wrapper around the XMLHttpRequest object. It's a promise-based HTTP client for the browser and node.js.
+Axios automatically parses JSON responses. It is a shorthand for fetch.
+Install axios using the following command in command line:
+
+```
+npm install axios
+```
+
+- FetchData.js
+
+```
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+const FetchedData = () => {
+  const [country, setCountry] = useState();
+  const fetchData = async (req, res) => {
+    try {
+      const response = await axios.post("https://countries.trevorblades.com/", {
+        query: " {countries { name }}"
+      });
+
+      const { data } = response.data;
+
+      const countriesName = [];
+      data.countries.map((c) => countriesName.push(c.name));
+      setCountry(countriesName);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+  const countriesList = country?.map((c, index) => <ul key={index}>{c}</ul>);
+  return (
+    <>
+      <h1>Countries</h1>
+      {countriesList}
+    </>
+  );
+};
+
+export default FetchedData;
+```
+
+App.js is the same as before.
+
+## graphql-request
+
+For simple requests, graphql-request is a good choice. This library is only '5.2kb' and it is one of the fastest and lightest GraphQL clients. It supports async/await, typescript, isomorphism, and works on both the client and server side.
+
+Install graphql-request:
+
+```
+npm install graphql-request graphql
+```
+
+Then, you need to import the library and create a client.
+If you are not familiar with code in these examples, I recommend you to read documentation about fundamentals of React.
+
+- FetchData.js
+
+```
+import { useState, useEffect, useCallback } from "react";
+import { request, gql } from "graphql-request";
+
+const FetchedData = () => {
+  const [country, setCountry] = useState();
+
+  const countriesQuery = gql`
+    query {
+      countries {
+        name
+      }
+    }
+  `;
+
+  const url = "https://countries.trevorblades.com/";
+
+  const fetchData = useCallback(async () => {
+    try {
+      const response = await request(url, countriesQuery);
+
+      const { countries } = response;
+
+      const countryName = countries?.map((c, i) => <ul key={i}>{c.name}</ul>);
+      setCountry(countryName);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [countriesQuery]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return (
+    <>
+      <h1>Countries</h1>
+      {country}
+    </>
+  );
+};
+
+export default FetchedData;
+```
+
+App.js is the same as in previous example.
+
+## graphql-hooks
+
+Graphql-hooks is a library that allows you to use GraphQL clients in React. It is a promise-based library for the browser and node.js. Conceptually, it is similar to graphql-request, but difference is that first is formed a client and then whole app is wrapped in a context in which the client is available(wrapping app). Tiny bundle: only 7.6kB (2.8 gzipped)
+
+Install graphql-hooks:
+
+```
+npm install graphql-hooks
+```
+
+- App.js
+
+```
+import FetchedData from "./FetchData";
+import { GraphQLClient, ClientContext } from "graphql-hooks";
+
+const client = new GraphQLClient({
+  url: "https://countries.trevorblades.com/"
+});
+
+export default function App() {
+  return (
+      <ClientContext.Provider value={client}>
+        <FetchedData />
+      </ClientContext.Provider>
+  );
+}
+```
+
+- FetchData.js
+
+```
+import { useState, useEffect, useCallback } from "react";
+import { useQuery } from "graphql-hooks";
+
+const FetchedData = () => {
+  const [country, setCountry] = useState();
+
+  const countriesQuery = `
+    query {
+      countries {
+        name
+      }
+    }
+  `;
+
+  const { loading, error, data } = useQuery(countriesQuery);
+
+  const fetchData = useCallback(async () => {
+    try {
+
+      const { countries } = data;
+      console.log(countries);
+
+
+      const countryName = countries?.map((c, i) => <ul key={i}>{c.name}</ul>)
+      setCountry(countryName);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  return (
+    <>
+      <h1>Countries</h1>
+      {country}
+    </>
+  );
+};
+
+export default FetchedData;
+
+```
+
+If you don't need advanced features, graphql-hooks is a ideal choice, because it is very functional and easy to use. It is also very lightweight. Even has a self-contained development environment in form of extension.
+
+## Urql
+
+Official repository says that Urql is:
+
+> The highly customizable and versatile GraphQL client with which you add on features like normalized caching as you grow.
+
+Urql is an advanced GraphlQL client which has options for caching, normalization, and more. In modern development, it is a must-have, especially if you are building a complex application.
+
+Installation:
+
+```
+npm install urql graphql
+```
+
+- App.js:
+
+```
+import React from 'react';
+import FetchedData from './FetchData';
+import { createClient, Provider } from 'urql';
+
+const client = createClient({
+  url: 'https://countries.trevorblades.com/',
+});
+
+export default function App() {
+  return (
+    <Provider value={client}>
+      <FetchedData />
+    </Provider>
+  );
+}
+```
+
+- FetchData.js:
+
+```
+import React from "react";
+import { useQuery } from "urql";
+const countriesQuery = `
+query {
+    countries {
+        name
+    }
+}
+`;
+
+const FetchedData = () => {
+  const [result] = useQuery({ query: countriesQuery });
+
+  const { data, fetching, error } = result;
+  console.log(data);
+
+  if (fetching) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  const countriesList = data.countries.map((country, i) => (
+    <ul key={i}>{country.name}</ul>
+  ));
+
+  return (
+    <div>
+      <h1>Countries</h1>
+      {countriesList}
+    </div>
+  );
+};
+
+export default FetchedData;
+```
+
+## SWR
+
+The simple and effective way to fetch data is to use SWR library.
+
+Install SWR:
+
+```
+npm install swr
+```
+
+First, you need to import the library and create a fetcher function. For using SWR with GraphQL, you create a custom fetcher function with libraries like graphql-request or graphql-hooks.
+
+- FetchData.js:
+
+```
+import { request } from "graphql-request";
+import useSWR from "swr";
+
+const FetchedData = () => {
+  const countriesQuery = `
+    query {
+      countries {
+        name
+      }
+    }
+  `;
+
+  const url = "https://countries.trevorblades.com/";
+
+  const fetcher = () => request(url, countriesQuery);
+
+  const { data, error } = useSWR(countriesQuery, fetcher);
+
+  if (error) return <div>failed to load</div>;
+  if (!data) return <div>loading...</div>;
+
+  const countriesList = data?.countries.map((c, i) => <ul key={i}>{c.name}</ul>);
+
+  return (
+    <>
+      <h1>Countries</h1>
+      {countriesList}
+    </>
+  );
+};
+
+export default FetchedData;
+```
+
+- App.js:
+
+```
+import FetchedData from "./FetchData";
+
+export default function App() {
+return (
+    <FetchedData />
+);
+}
+```
+
+As simple as that. As you can see, using SWR with GraphQL is very easy and straightforward. You avoid the need to create a state management system, all logic is in the useSWR hook.
+
+## React Query
+
+As offical documentation says:
+
+> Because React Query's fetching mechanisms are agnostically built on Promises, you can use React Query with literally any asynchronous data fetching client, including GraphQL!
+
+React Query is very similar to SWR, but it is built on top of React Context and React Hooks.
+Install React Query:
+
+```
+npm install react-query
+```
+
+- FetchData.js:
+
+```
+import { request } from "graphql-request";
+import { useQuery } from "react-query";
+
+const FetchedData = () => {
+  const countriesQuery = `
+    query {
+      countries {
+        name
+      }
+    }
+  `;
+
+  const url = "https://countries.trevorblades.com/";
+
+  const fetcher = () => request(url, countriesQuery);
+
+  const { isLoading, error, data } = useQuery(url, fetcher);
+
+  if (error) return <div>failed to load</div>;
+  if (isLoading) return <div>loading...</div>;
+
+  const countriesList = data?.countries.map((c, i) => <ul key={i}>{c.name}</ul>);
+
+  return (
+    <>
+      <h1>Countries</h1>
+      {countriesList}
+    </>
+  );
+};
+
+export default FetchedData;
+```
+
+- App.js:
+
+```
+import FetchedData from "./FetchData";
+import { QueryClient, QueryClientProvider } from "react-query";
+
+const queryClient = new QueryClient();
+
+export default function App() {
+return (
+    <QueryClientProvider client={queryClient}>
+      <FetchedData />
+    </QueryClientProvider>
+);
+}
+```
+
+## React-Relay
+
+Relay is a GraphQL client which is built by Facebook. It is a great GraphQL client, but it is not a good choice for simple applications and beginners. It is highly opinionated, users must follow the strict rules.
+The main thing here is that the error possibility is minimal. Contrary to other clients it misses a lot of flexibility. Relay demands a lot of knowledge about the application and schema design.
+The shiny point is that it is awesome for scalability. Relay is a complete framework for declarative data fetching.
+To be able to use Relay, one must create a GraphQL server compatible with Relay.
+Many developers avoid using Relay and instead use Apollo Client for complex applications, due to its simplicity and flexibility. It is hard to set up compared to other frameworks, but when everything is done, it is less error-prone and can be used in production serving a lot of users.
+The big advantage of React Relay is that it is supported by Facebook and is tested by millions of users on their social networks. In the new release of React18, the Suspense feature is deeply integrated with Relay. So, if you are using React for your application, with Relay you can get a great performance boost.
+
+From the official documentation:
+
+Relay is composed of three core parts:
+
+> - _Relay Compiler_: A GraphQL to GraphQL optimizing compiler, providing general utilities for transforming and optimizing queries as well as generating build artifacts. A novel feature of the compiler is that it facilitates experimentation with new GraphQL features - in the form of custom directives - by making it easy to translate code using these directives into standard, spec-compliant GraphQL.
+> - _Relay Runtime_: A full-featured, high-performance GraphQL runtime that can be used to build higher-level client APIs. The runtime features a normalized object cache, optimized "write" and "read" operations, a generic abstraction for incrementally fetching field data (such as for pagination), garbage collection for removing unreferenced cache entries, optimistic mutations with arbitrary logic, support for building subscriptions and live queries, and more.
+> - _React/Relay_: A high-level product API that integrates the Relay Runtime with React. This is the primary public interface to Relay for most product developers, featuring APIs to fetch the data for a query or define data dependencies for reusable components (e.g. useFragment).
+
+Installation:
+For some reason, I have got an error when using npm package manager. So I'm using yarn instead.
+
+```
+yarn add relay-runtime react-relay
+yarn add --dev relay-compiler babel-plugin-relay
+```
+
+Add schema.graphql to your project:
+
+```
+cd my-project
+curl https://raw.githubusercontent.com/ogurenko/graphql-api/main/schema.graphql > schema.graphql
+```
+
+Modify package.json to run relay compiler:
+
+```
+"scripts": {
+    "start": "yarn run relay && react-scripts start",
+    "build": "yarn run relay && react-scripts build",
+    "relay": "yarn run relay-compiler"
+  },
+  "relay": {
+    "src": "./src/",
+    "schema": "./schema.graphql"
+  },
+  ...
+```
+
+Now you can run the app:
+
+```
+yarn start
+```
+
+You should see your app running.
+Now it is time to configure the Relay environment. Create a file called RelayEnvironment.js in src/ and add the following code:
+
+```
+import { Environment, Network, RecordSource, Store } from "relay-runtime";
+import FetchedData from "./FetchData";
+
+
+export default new Environment({
+  network: Network.create(() => FetchedData()),
+  store: new Store(new RecordSource()),
+});
+```
+
+Add FetchData.js to src/ and add the following code:
+
+```
+async function FetchedData() {
+
+  const response = await fetch("https://countries.trevorblades.com/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: "{countries { name }}",
+    }),
+  });
+
+  return await response.json();
+}
+
+export default FetchedData;
+```
+
+Replace the contents of src/App.js with the following code:
+
+```
+import React from "react";
+import graphql from "babel-plugin-relay/macro";
+import {
+  RelayEnvironmentProvider,
+  loadQuery,
+  usePreloadedQuery,
+} from "react-relay/hooks";
+import RelayEnvironment from "./RelayEnvironment";
+
+const { Suspense } = React;
+
+
+const countriesQuery = graphql`
+  query AppCountryNamesQuery {
+    countries {
+      name
+    }
+  }
+`;
+
+
+const preloadedQuery = loadQuery(RelayEnvironment, countriesQuery, {
+  /* query variables */
+});
+
+function App(props) {
+  const data = usePreloadedQuery(countriesQuery, props.preloadedQuery);
+console.log(data.countries);
+      const countriesName = [];
+      data.countries.map((c) => countriesName.push(c.name));
+  return (
+    <div className="App">
+      <header className="App-header">
+        {countriesName?.map((c, index) => <ul key={index}>{c}</ul>)}
+      </header>
+    </div>
+  );
+}
+
+function AppRoot() {
+  return (
+    <RelayEnvironmentProvider environment={RelayEnvironment}>
+      <Suspense fallback={"Loading..."}>
+        <App preloadedQuery={preloadedQuery} />
+      </Suspense>
+    </RelayEnvironmentProvider>
+  );
+}
+
+export default AppRoot;
+```
+
+Modify src/index.js to run the app with the latest version of React:
+
+```
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App";
+
+const root = createRoot(document.getElementById("root"));
+
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+```
+
+You're done!
+
+> **Note:** To find out more about environment and particular hooks in Relay system, please refer to the [official documentation](https://relay.dev/docs/api-reference/relay-environment-provider/)
+
+## Apollo Client
+
+At the end of this comprehensive guide, you will learn how to use Apollo Client to fetch data from a GraphQL server.
+Apollo is a gold standard between the GraphQL ecosystem and React. It's simple, powerful, and flexible. It has a lot of features for modern applications. The downside is the bigger size of the library. It is not convenient to use this "mega" library for a simple application.
+Apollo is a platform-agnostic client. It can be used with any framework on the client-side, as well as with vanilla JavaScript. Works well with TypeScript and serverless architectures. Works well with Node.js and supports many libraries.
+
+Installation:
+
+```
+npm install @apollo/client graphql
+```
+
+Create a client:
+
+- App.js:
+
+```
+import React from 'react'
+import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
+import { FetchedData } from "./FetchData";
+
+const client = new ApolloClient({
+  uri: "https://countries.trevorblades.com",
+  cache: new InMemoryCache()
+});
+
+export default function App() {
+  return (
+    <ApolloProvider client={client}>
+      <FetchedData />
+    </ApolloProvider>
+  );
+}
+```
+
+FetchData.js:
+
+```
+import React from "react";
+import { useQuery, gql } from "@apollo/client";
+
+const countriesQuery = gql`
+  query {
+    countries {
+      name
+    }
+  }
+`;
+
+export const FetchedData = () => {
+  const { loading, error, data } = useQuery(countriesQuery);
+
+  if (loading) return <p>Loading ... </p>;
+  if (error) return <p>Erorr ... </p>;
+
+  const countriesList = data.countries.map((country, index) => (
+    <ul key={index}>{country.name}</ul>
+  ));
+  return (
+    <>
+      <h1>Countries</h1>
+      {countriesList}
+    </>
+  );
+};
+```
+
+Start the app:
+
+```
+npm start
+```
+
+As you can see, Apollo Client leverages the power of React Context and Hooks. Additionally resolves the problems with caching, state management, and error handling.
+
+Bundle size and popularity of the GraphQL clients:
+
+|           | [graphql-request] | [graphql-hooks] |      [urql]       |  [React-Relay]  | [apollo-client] |
+| --------- | :---------------: | :-------------: | :---------------: | :-------------: | :-------------: |
+| Size      |     ![][bggr]     |    ![][bggh]    |    ![][bgurql]    |    ![][bgrr]    |    ![][bgac]    |
+| Stars     |  ![][gitstarsgr]  | ![][gitstarsgh] | ![][gitstarsurql] | ![][gitstarsrr] | ![][gitstarsac] |
+| Forks     |    ![][forkgr]    |   ![][forkgh]   |   ![][forkurql]   |   ![][forkrr]   |   ![][forkac]   |
+| Issues    |   ![][issuesgr]   |  ![][issuesgh]  |  ![][issuesurql]  |  ![][issuesrr]  |  ![][issuesac]  |
+| Downloads |   ![][wdowngr]    |  ![][wdowngh]   |  ![][wdownurql]   |  ![][wdownrr]   |  ![][wdownac]   |
+
+- **red flag**: the worst result among all the clients
+- **green flag**: the best result among all the clients
+- **Size**: source _Bundlephobia_ (minizipped size of the bundle)
+- **Stars & Issues & Forks**: source _Github_
+- **Downloads**: source _NPM_
+
+The table above shows that GraphQL-request and urql are overall the most balanced libraries. There are no extreme results in any of these two clients.
+Apollo-client is the most popular client in the community. On the other hand, it has the most issues.
+GraphQL-hooks is the least popular client in the community. That's not suggesting that is the bad solution for your application.
+GraphQL-request is the most downloaded client, so it speaks for itself.
+
+## Conclusion
+
+Axios, React-Query, and SWR are great tools for any protocol and can be used to build a GraphQL client. My focus is on the protocol-specific GraphQL clients.
+The GraphQL clients presented in this post, are all pretty solid and have a lot of good features. You can find a lot of comparison tables and examples of how to use the GraphQL clients on the internet. But this post aims to show you practical examples, with the same query and different GraphQL clients. I think that the best way to learn is to try it out on the same workload and see how it works.
+
+Opinionated recommendations:
+
+- For the sake of simplicity, I recommend using **graphql-request**. It is a simple, fast, and small library that is easy to use.
+
+- If you need data on many pages, across different components, you can use **graphql-hooks**, which uses React Context and Hooks.
+
+- If you are looking for a GraphQL client that is more powerful, I recommend using **urql**. Although it is less popular than Apollo Client, it has a lot of good features. Great post about it: [I Switched From Apollo To Urql (And It Was Worth It)](https://javascript.plainenglish.io/how-i-switched-from-apollo-to-urql-in-my-next-js-site-and-why-it-was-worth-it-9c7394ec150d)
+
+- If you need an enterprise solution, you can use **react-relay**. The learning curve is a bit more complex, but once you set up the environment, your app is less likely to break.
+
+Thanks for reading!
+
+References:
+
+[5 GraphQL clients for JavaScript and Node.js
+](https://blog.logrocket.com/5-graphql-clients-for-javascript-and-node-js/)
+
+[Axios vs. fetch(): Which is best for making HTTP requests?](https://blog.logrocket.com/axios-vs-fetch-best-http-requests/)
+
+[Urql](https://formidable.com/open-source/urql/docs/comparison/)
+
+[React-Query](https://react-query.tanstack.com/comparison)
+
+In this post, it will be explained how to use the most advanced GraphQL client like Relay and Apollo Client and conclude with a comparison table of the most popular GraphQL clients.

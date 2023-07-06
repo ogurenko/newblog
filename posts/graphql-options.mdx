@@ -1,0 +1,191 @@
+---
+title: GraphQL Options
+publishedAt: 2021-11-06
+description: Variables, directives, fragments, introspections can significantly improve the work of both developers and users ...
+category: "API"
+---
+
+# GraphQL-options
+
+_Note: The public [GraphQL API](https://countries.trevorblades.com/) is used for this post._
+
+## Variables
+
+Variables are used to pass data to the server. They are used in the query string and in the GraphQL query. They are used to filter the data, to work with GraphQL on dynamics and security.
+The procedure to use variables is as follows:
+
+- Create a variable in the GraphQL query.
+- Pass the variable in the query string.
+- Pass the variable in the GraphQL query.
+
+as in the following example:
+
+```
+query variableTest ($ continent: [String]!) {
+countries (filter: {continent: {in: $ continent}}) {
+name
+  languages ​​{
+    name
+  }
+}
+}
+
+variables {
+    "continent": "EU"
+  }
+```
+
+{" "}
+
+<br />
+
+## Directives
+
+{" "}
+
+<br />
+
+The directives are used to describe the behavior of the query or mutation requests. They always start with the `@` symbol. According to the GraphQL specification, they are used in places after the expression `on` and before the `{` symbol.
+Directives are an additional option in the GraphQL schema language that defines what should be returned in the response. There are two types of directives:
+
+- operational directives: @include and @skip
+- schematic directive: @deprecated
+
+The **@include** directive is used to include the field in the response only if the argument is true.
+If the argument is false, the field is not included in the response.
+
+```
+query listCountries ($isAuth: Boolean!) {
+countries @include (if: $isAuth) {
+  name
+  capital
+  currency
+}
+}
+variables {
+  "isAuth": true
+}
+```
+
+So, if the variable isAuth is true, the field countries are included in the response.
+
+The **@skip** directive is used to exclude the field from the response. If the argument is true, the field is not included in the response.
+
+```
+query listCountries ($ isAuth: Boolean!) {
+countries @skip (if: $ isAuth) {
+  name
+  capital
+  currency
+}
+}
+variables {
+  "isAuth": true
+}
+```
+
+The **@deprecated** directive is used to mark a field as deprecated and display a warning in the response for obsolete fields, that are not used anymore. This is useful for developers to know which fields are obsolete and which are still in use.
+
+{" "}
+
+<br />
+
+## Fragments
+
+{" "}
+
+<br />
+
+A fragment is a way to define a reusable piece of a GraphQL query. It is used to define the fields that are common to multiple queries and to avoid repeating the same fields in multiple queries.
+
+```
+fragment country on Country {
+name
+capital
+}
+```
+
+Now, if we want to use the fragment **country** in a query, we can use the following syntax:
+
+```
+query GetCountry {
+  countries (filter: {continent: {in: "EU"}}) {
+  ... country
+}
+  }
+}
+```
+
+This is the same as the following query:
+
+```
+query GetCountry {
+  countries (filter: {continent: {in: "EU"}}) {
+  name
+  capital
+}
+  }
+}
+```
+
+## Introspection
+
+Introspection is a way to get information about the GraphQL schema. Introspection requests are made using the GraphQL introspection query. It is recognized by two underscores : `__schema`, `__type` and `__typename`.
+
+`__schema` is used to get the list of all the fields, types, and directives in the schema.
+
+```
+type __Schema {
+  types: [__Type!]!
+  queryType: __Type!
+  mutationType: __Type
+  subscriptionType: __Type
+  directives: [__Directive!]!
+}
+```
+
+as in the following example:
+
+```
+query Introspection {
+__schema {
+  types {
+    name
+    kind
+    description
+    fields {
+      name
+      description
+    }
+  }
+}
+```
+
+We can see that the query returns the list of all the types in the schema.
+
+`__type` is used to get information about a specific type.
+
+```
+query introspectionTestType {
+  __type (name: "Continent") {
+    name
+    kind
+    fields {
+      name
+    }
+  }
+}
+```
+
+`__typename` is used to get the name of the type of object.
+
+```
+query introspectionTestTypeName {
+countries {
+  name
+  __typename
+}
+}
+```
+
+GraphQL has a many options to use, but the most common ones are given above. If you want to know more about options, you can read the [GraphQL documentation](https://graphql.org/learn/).

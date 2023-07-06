@@ -1,0 +1,193 @@
+---
+title: Demystifying Apollo Link
+publishedAt: 2023-06-25
+description: Apollo Link is a powerful library that allows you to customize and enhance your GraphQL client's behavior...
+category: "API"
+---
+
+# Demystifying Apollo Link
+
+## Introduction
+
+Apollo Link is a powerful library that allows you to customize and enhance your GraphQL client's behavior by composing a chain of middleware. Let's dive in practical examples of how to leverage its capabilities to build robust GraphQL applications.
+
+In a simple manner Apollo Link allowing developers to modify and enhance the communication between the client and the GraphQL server. Being said that we can observe it as a chain of middleware, where each middleware can intercept and manipulate the requests and responses passing through it. In this way you can modify headers, add caching, handling errors, logging, and much more.
+
+Apollo Link is designed to work with various JavaScript environments and frameworks, including React,Angular,Vue.js and Node.js. It integrates seamlessly with Apollo Client, which is de facto standard in working with GraphQL apis.
+
+## Features
+
+Key building blocks of Apollo Link:
+
+- Request Middleware: Intercept and modify outgoing requests before they are sent to the server(headers,tokens).
+- Response Middleware: Handles the server's response to a request. It is often used for tasks like data normalization, caching, or error handling.
+- Terminating Link: Responsible for making the actual network request to the GraphQL server(HttpLink, BatchHttpLink)
+- Link Composition: Functions for composing multiple middleware functions into a single chain. Some of them are 'concat', 'split', and 'ApolloLink.from'.
+
+Each middleware enable powerful customization of the GraphQL client behavior.
+
+Step 1: Install Dependencies:
+
+```
+npm install @apollo-client
+```
+
+Step 2: Import Dependencies and create an instance of the HTTP Link.
+
+```
+import {ApolloClient, HttpLink, from } from '@apollo/client';
+
+const httpLink = new HttpLink({ uri: 'https://your-graphql-api.com/graphql' });
+```
+
+Step 3: Create the Apollo Link
+
+```
+const link = from([httpLink])
+```
+
+Step 4: Use the Apollo Link
+You can now use the 'link' instance in your Apollo Client configuration.
+
+```
+
+const client = new ApolloClient({
+  link,
+  // Other Apollo Client configuration options...
+});
+```
+
+Apollo provides several pre-built links out of the box that you can use in your Apollo Link chain. Here's an overview of some commonly used pre-built Apollo Links:
+
+1. 'HttpLink': The 'HttpLink' is used for making HTTP requests to a GraphQL server. It uses the Apollo Client's underlying 'fetch' implementation.
+2. 'ErrorLink': The 'ErrorLink' is used for handling errors that occur during the execution of GraphQL operations.
+3. 'RetryLink': The 'RetryLink' is used for retrying failed requests.
+4. 'BatchHttpLink': The 'BatchHttpLink' is similar to the 'HttpLink' but optimized for batched requests.It allows you to send multiple GraphQL operations in a single HTTP request,reducing the overhead of making multiple requests.
+5. 'from': The 'from' is a function that takes an array of links and returns a new link that executes the provided links in order.
+
+Example of how you can combine multiple built-in links to create a middleware chain:
+
+```
+import { from, HttpLink, ErrorLink, RetryLink } from '@apollo/client';
+
+// Create an HTTP link for making HTTP requests
+const httpLink = new HttpLink({ uri: 'https://api.example.com/graphql' });
+
+// Create an error link for handling errors
+const errorLink = new ErrorLink();
+
+// Create a retry link for retrying failed requests
+const retryLink = new RetryLink();
+
+// Create a middleware chain by combining the links
+const middlewareLink = from([errorLink, retryLink, httpLink]);
+
+// Use the middleware chain in Apollo Client
+const client = new ApolloClient({
+  link: middlewareLink,
+  // ...other Apollo Client configurations
+});
+
+
+```
+
+Let's create custom middleware to intercept and modify requests and responses:
+
+```
+
+const customMiddleware = (operation,forward,context) => {
+  // Intercept and modify the request
+operation.variables = {...operation.variables, customVariable: 'customValue'}
+operation.setContext({ headers: { 'X-Custom-Header': 'customValue' } })
+
+  // Perform additional actions before forwarding the operation
+  console.log('Executing custom middleware');
+
+
+  // Forward the operation to the next middleware
+return forward(operation).map(response => {
+// Modify the response if needed
+response.data = {...response.data, customData: 'customValue'}
+
+// Perform additional actions after receiving the response
+    console.log('Received response in custom middleware');
+
+// Return the modified or original response
+return response
+})
+}
+```
+
+Then you can add your custom middleware to the Apollo Link chain by using ApolloLink.from method and passing an array of middleware functions. The order of middleware functions determines the order in which they will be executed.
+
+```
+const link = from([customMiddleware, httpLink]);
+```
+
+Let's create different custom middlewares to handle authentication, logging and performance tracking:
+
+Authentication Middleware:
+Authentication middleware can be used to add authentication headers or perform authentication checks on each request.
+
+```
+import { ApolloLink, from } from '@apollo/client';
+
+const authMiddleware = new ApolloLink((operation, forward) => {
+  // Retrieve authentication token from storage or session
+  const token = localStorage.getItem("authToken");
+
+  // Add authentication token to request headers
+  operation.setContext(({ headers = {} }) => ({
+    headers: {
+      ...headers,
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+  }));
+
+  // Forward the operation to the next middleware
+});
+```
+
+Logging Middleware:
+Logging middleware can be used to log important information about each request and response.
+
+```
+
+const loggingMiddleware = new ApolloLink((operation, forward) => {
+  // Log request details
+  console.log("Request:", operation.operationName);
+  console.log("Variables:", operation.variables);
+
+  // Forward the operation to the next middleware
+  return forward(operation).map((response) => {
+    // Log response details
+    console.log("Response:", response.data);
+
+    // Return the response
+    return response;
+  });
+});
+```
+
+Now, you can combine these middleware in particular order to create a chain:
+
+```
+// Create a middleware chain by combining the links
+const const middlewareLink = from([
+  authMiddleware,
+  loggingMiddleware,
+  httpLink,
+]);
+
+// Use the middleware chain in Apollo Client
+const client = new ApolloClient({
+  link: middlewareLink,
+  // ...other Apollo Client configurations
+});
+```
+
+By this order, each request will go through the authentication middleware, logging middleware, and performance tracking middleware before neing sent via HTTP link.
+
+Each middleware has the opportunity to intercept and transform the response before it reaches Apollo Client. The middleware can handle errors, normalize the data, or perform other transformations on the response. Finally, the transformed response reaches Apollo Client, which can update its cache, notify any subscribed components, and provide the response data to your application.
+
+With a deeper understanding of Apollo Link's capabilities and usage patterns, developers can create flexible and powerful GraphQL clients that integrate smoothly with their chosen client libraries.
