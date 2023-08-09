@@ -1,6 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
-import Container from "../../components/Container";
+import SectionContainer from "@/app/components/SectionContainer";
 
 const PostLayout = ({
   children,
@@ -12,14 +12,14 @@ const PostLayout = ({
   };
 }) => {
   return (
-    <Container>
-      <div className="flex flex-row justify-start items-start mt-8 mb-8">
-        <Link href="/" passHref>
-          <button>Back</button>
-        </Link>
-      </div>
-      {children}
-    </Container>
+    <SectionContainer>
+      <Link href="/" passHref>
+        <button className="bg-blue-300 hover:bg-blue-700 text-white dark:text-black font-bold py-2 px-4 ">
+          Back
+        </button>
+      </Link>
+      <article>{children}</article>
+    </SectionContainer>
   );
 };
 

@@ -1,21 +1,24 @@
-// contentlayer.config.js
-import { defineDocumentType, makeSource } from "contentlayer/source-files";
+// contentlayer.config.ts
+import {
+  defineDocumentType,
+  makeSource
+} from "contentlayer/source-files";
 import remarkGfm from "remark-gfm";
-import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
+import rehypePrettyCode from "rehype-pretty-code";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
-import rehypeCodeTitles from "rehype-code-titles";
-import remarkExternalLinks from "remark-external-links";
-import rehypePrism from "rehype-prism-plus";
 var Post = defineDocumentType(() => ({
   name: "Post",
-  filePathPattern: `**/*.mdx`,
+  filePathPattern: "**/*.mdx",
   contentType: "mdx",
   fields: {
     title: { type: "string", required: true },
-    publishedAt: { type: "string", required: true },
-    description: { type: "string", required: true },
-    category: { type: "string", required: true }
+    author: { type: "string", required: true },
+    createdAt: { type: "string", required: true },
+    updatedAt: { type: "string", required: false },
+    description: { type: "string", required: true }
+    // slug: { type: "string", required: true },
+    // tags: { type: "list", of: Tag },
   },
   computedFields: {
     slug: {
@@ -31,9 +34,6 @@ var contentlayer_config_default = makeSource({
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
       rehypeSlug,
-      rehypeCodeTitles,
-      [rehypePrism],
-      [rehypeAutolinkHeadings],
       [
         rehypePrettyCode,
         {
@@ -50,11 +50,25 @@ var contentlayer_config_default = makeSource({
             node.properties.className = ["word--highlighted"];
           }
         }
+      ],
+      [
+        rehypeAutolinkHeadings,
+        {
+          properties: {
+            className: ["anchor"]
+          }
+        }
       ]
     ]
   }
+  // onSuccess: async (importData) => {
+  //   const { allPosts } = await importData();
+  //   createTagCount(allPosts);
+  //   createSearchIndex(allPosts);
+  // },
 });
 export {
+  Post,
   contentlayer_config_default as default
 };
-//# sourceMappingURL=compiled-contentlayer-config-K66HW7JY.mjs.map
+//# sourceMappingURL=compiled-contentlayer-config-VMOA5WVF.mjs.map
