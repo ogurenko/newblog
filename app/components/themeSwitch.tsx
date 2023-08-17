@@ -24,7 +24,7 @@ export const ThemeSwitch = () => {
         onClick={() => setTheme(theme === "light" ? "dark" : "light")}
         className="border rounded-md w-6 h-6 flex items-center justify-center"
       >
-        {theme !== "dark" ? <HiSun /> : <HiMoon />}
+        {theme !== "dark" ? <HiMoon /> : <HiSun />}
       </button>
     </header>
   );

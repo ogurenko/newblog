@@ -8,11 +8,9 @@ description: For the user of the site to enter any information, it is necessary 
 
 # GraphQL Mutations
 
-### Types
+## Types
 
 {" "}
-
-<br />
 
 Mutations are the only way to change data in a GraphQL server. Involves creating a new type, and then adding a mutation field to the schema. Creating, updating, and deleting data is a common use case for mutations. The data format is similar to the data format for queries. Contain the following types:
 
@@ -40,6 +38,7 @@ The full example is available [here](https://github.com/ogurenko/graphql-api-mut
 ES6 syntax is used in this example, which implies **import** and **export**, instead of the traditional `require` and `module.exports`. To enable ES6 syntax, use the `--experimental-specifier-resolution` flag. In the `package.json` file, add the following properties:
 
 ```
+ {
   "name": "graphql-api",
   "version": "1.0.0",
   "type": "module",
@@ -104,8 +103,6 @@ In the schema, we also define the input type and resolvers for the mutation.
 
 {" "}
 
-<br />
-
 Create a file called `schema.js` in the `graphql-api` folder. Then create a file called **query.js** and **mutation.js** in the `graphql-api` folder. In the `query.js` file, add the following code:
 
 ```
@@ -163,11 +160,9 @@ export default RootQueryType;
 
 A query type must exist in the schema. You can create a query type by using the `new GraphQLObjectType` function. The `name` property is the name of the type. The `fields` property is a function that returns an object with the fields of the type. The `args` property is an object with the arguments of the field. The `type` property is the type of field. The `resolve` property is a function that returns the data for the field.
 
-### Mutation
+## Mutation
 
 {" "}
-
-<br />
 
 In the `mutation.js` file, add the following code:
 
@@ -223,18 +218,14 @@ export default RootMutationType;
 
 {" "}
 
-<br />
-
-### Input Types
+## Input Types
 
 {" "}
-
-<br />
 
 In the schema folder, create a new folder called `types`. Then create a file called `input.js` in the `types` folder. In the `input.js` file, add the following code:
 
 ```
-import {GraphQLID, GraphQLInputObjectType, GraphQLNonNull, GraphQLString} from 'graphql';
+import { GraphQLID, GraphQLInputObjectType, GraphQLNonNull, GraphQLString } from 'graphql';
 
 
 export const inputUserType = new GraphQLInputObjectType ({
@@ -260,7 +251,7 @@ export const inputPostType = new GraphQLInputObjectType ({
 Then create our custom types. In the `user.js` file, add the following code:
 
 ```
-import {GraphQLID, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLString} from 'graphql';
+import { GraphQLID, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
 import postType from './post.js';
 import Posts from '../../data/posts.js';
 
@@ -289,7 +280,7 @@ export default userType;
 In the post.js file, add the following code:
 
 ```
-import {GraphQLID, GraphQLNonNull, GraphQLObjectType, GraphQLString} from 'graphql';
+import { GraphQLID, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql';
 import userType from './user.js';
 import Users from '../../data/users.js';
 
@@ -334,7 +325,7 @@ Now query the server with the following query:
 
 ```
 query {
-  users{
+  users {
     id
     username
   }

@@ -13,8 +13,6 @@ description: Comprehensive guide to GraphQL clients and additional libraries. Pr
 As you already know, GraphQL is a query language for APIs. It is a declarative language, which means that it is easy to write queries. However, it is also a flexible language, which means that it is easy to write queries that are not declarative. This guide will help you to write declarative queries. Until now, you have created a server that returns data. However, you have not used the data in any way. This guide will help you to use the data in a declarative way.
 GraphQL clients are used to send queries to a GraphQL server. Requests are sent in the form of a query string. The response is returned in the form of a JSON object. The response is a JSON object that contains the data that is requested. Request are made to a GraphQL server using HTTP protocol, so you can use the same client as a client for RESTful APIs.
 
-# Getting Started
-
 ## GraphQL IDE's
 
 IDE's are test tools to check the correctness of your queries. You can define your queries in the IDE and then send them to the server. The server will return the data that is requested if the query is correct. There are a lot of IDEs available.
@@ -738,27 +736,6 @@ npm start
 ```
 
 As you can see, Apollo Client leverages the power of React Context and Hooks. Additionally resolves the problems with caching, state management, and error handling.
-
-Bundle size and popularity of the GraphQL clients:
-
-|           | [graphql-request] | [graphql-hooks] |      [urql]       |  [React-Relay]  | [apollo-client] |
-| --------- | :---------------: | :-------------: | :---------------: | :-------------: | :-------------: |
-| Size      |     ![][bggr]     |    ![][bggh]    |    ![][bgurql]    |    ![][bgrr]    |    ![][bgac]    |
-| Stars     |  ![][gitstarsgr]  | ![][gitstarsgh] | ![][gitstarsurql] | ![][gitstarsrr] | ![][gitstarsac] |
-| Forks     |    ![][forkgr]    |   ![][forkgh]   |   ![][forkurql]   |   ![][forkrr]   |   ![][forkac]   |
-| Issues    |   ![][issuesgr]   |  ![][issuesgh]  |  ![][issuesurql]  |  ![][issuesrr]  |  ![][issuesac]  |
-| Downloads |   ![][wdowngr]    |  ![][wdowngh]   |  ![][wdownurql]   |  ![][wdownrr]   |  ![][wdownac]   |
-
-- **red flag**: the worst result among all the clients
-- **green flag**: the best result among all the clients
-- **Size**: source _Bundlephobia_ (minizipped size of the bundle)
-- **Stars & Issues & Forks**: source _Github_
-- **Downloads**: source _NPM_
-
-The table above shows that GraphQL-request and urql are overall the most balanced libraries. There are no extreme results in any of these two clients.
-Apollo-client is the most popular client in the community. On the other hand, it has the most issues.
-GraphQL-hooks is the least popular client in the community. That's not suggesting that is the bad solution for your application.
-GraphQL-request is the most downloaded client, so it speaks for itself.
 
 ## Conclusion
 
