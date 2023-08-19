@@ -12,8 +12,6 @@ description: To create real-time applications, GraphQL Subscription offers every
 
 {" "}
 
-<br />
-
 Finally, we will learn how to use GraphQL Subscription to get real-time updates from the server.
 The GraphQL Subscription is a way to get real-time updates from the server. It's used the WebSocket protocol, instead of HTTP, because it's more efficient, two-way communication. The server sends updates to the client, and the client sends updates to the server. **Subscription** means that the client is not required to send a request to the server every time it wants to get an update. The connection between the client and the server is maintained by the server, using the WebSocket API protocol.
 For implementing GraphQL Subscription, we will use the [subscription-transport-ws](https://www.npmjs.com/package/subscriptions-transport-ws) library.
@@ -21,14 +19,9 @@ There are many examples in practical projects, but the most popular are: google 
 
 {" "}
 
-<br />
-<br />
-
 ## Implementing GraphQL Subscription
 
 {" "}
-
-<br />
 
 Create a new project and add the following dependencies:
 
@@ -52,13 +45,9 @@ yarn add -D nodemon
 
 {" "}
 
-<br />
-
 ## Creating a server
 
 {" "}
-
-<br />
 
 Creating a server begins with creating a new schema. The schema is a collection of GraphQL types, which are used to define the data that the server can return. Let's say we have a collection of posts, and we want to follow published posts in real-time, using GraphQL Subscription.
 
@@ -70,13 +59,9 @@ Creating a server begins with creating a new schema. The schema is a collection 
 
 {" "}
 
-<br />
-
 ### Types
 
 {" "}
-
-<br />
 
 Let's define the type of post. Create a folder called types in the root of the project. Create a file called `post.js` in the `types` folder.
 
@@ -271,9 +256,8 @@ const Subscription = new GraphQLObjectType({
             type: new GraphQLNonNull(PostSubscription),
             subscribe: (parent, args, {pubsub}) => pubsub.asyncIterator("POST_DELETED"),
         },
-    },
   }),
-});
+  });
 
 
 export default Subscription;
@@ -281,13 +265,9 @@ export default Subscription;
 
 {" "}
 
-<br />
-
 ### Resolvers
 
 {" "}
-
-<br />
 
 Resolvers are defined in the resolvers.js file.
 
@@ -345,13 +325,9 @@ Pubsub is a feature that publishes events to which clients can subscribe. Each o
 
 {" "}
 
-<br />
-
-### Server
+## Server
 
 {" "}
-
-<br />
 
 - index.js
 

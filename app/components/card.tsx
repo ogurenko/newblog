@@ -23,7 +23,7 @@ const Card: React.FC<CardProps> = ({ slug, title, description, createdAt }) => {
       <div className="flex justify-center py-6">
         <div className="max-w-lg w-full bg-white dark:bg-gray-800 shadow-outline p-6 overflow-hidden border-2 border-blue-400 ">
           <div className="space-y-4">
-            <h2 className="text-gray-700 dark:text-white text-2xl font-body mt-1">
+            <h2 className="text-gray-500 dark:text-white text-2xl font-body mt-1">
               <Link href={`/posts/${slug}`}>{title}</Link>
             </h2>
             <p className="text-sm">{description}</p>

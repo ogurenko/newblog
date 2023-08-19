@@ -187,7 +187,7 @@ const client = new ApolloClient({
 });
 ```
 
-By this order, each request will go through the authentication middleware, logging middleware, and performance tracking middleware before neing sent via HTTP link.
+By this order, each request will go through the authentication middleware, logging middleware, and performance tracking middleware before being sent via HTTP link.
 
 Each middleware has the opportunity to intercept and transform the response before it reaches Apollo Client. The middleware can handle errors, normalize the data, or perform other transformations on the response. Finally, the transformed response reaches Apollo Client, which can update its cache, notify any subscribed components, and provide the response data to your application.
 

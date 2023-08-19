@@ -1,4 +1,3 @@
-import "@/app/style/prism.css";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import MDXComponents from "../../components/mdxComponents";

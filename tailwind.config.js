@@ -51,7 +51,7 @@ module.exports = {
         invert: {
           css: {
             a: {
-              color: theme("colors.primary.500"),
+              color: theme("colors.primary.300"),
               "&:hover": {
                 color: `${theme("colors.primary.400")}`,
               },

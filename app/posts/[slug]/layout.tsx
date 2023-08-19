@@ -1,4 +1,3 @@
-import * as React from "react";
 import Link from "next/link";
 
 const PostLayout = ({
@@ -13,7 +12,7 @@ const PostLayout = ({
   return (
     <>
       <Link href="/" passHref>
-        <button className="bg-blue-300 hover:bg-blue-700 text-white dark:text-black font-bold py-2 px-4 ">
+        <button className="bg-blue-300 hover:bg-blue-400 text-white dark:text-black font-bold py-2 px-4 ">
           Back
         </button>
       </Link>

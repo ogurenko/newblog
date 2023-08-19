@@ -1,5 +1,4 @@
 import { Post, allPosts } from "contentlayer/generated";
-import React from "react";
 import Card from "./card";
 import Link from "next/link";
 
@@ -58,12 +57,11 @@ const Pagination = ({ data, dataLimit, currentPage }: PaginationProps) => {
         {prevPage && (
           <Link
             href={currentPage - 1 === 1 ? `/` : `/page/${currentPage - 1}`}
-            // onClick={goToPreviousPage}
             passHref
           >
             <button
               rel="older"
-              className="transform hover:text-zinc-600 hover:dark:text-zinc-300"
+              className="transform hover:text-blue-400 hover:dark:text-blue-400"
             >
               Newer
             </button>{" "}
@@ -72,7 +70,6 @@ const Pagination = ({ data, dataLimit, currentPage }: PaginationProps) => {
         <span>
           {currentPage} of {totalPages}
         </span>
-        {/* next button */}
         {!nextPage && (
           <button
             className="cursor-pointer disabled:opacity-50"
@@ -85,7 +82,7 @@ const Pagination = ({ data, dataLimit, currentPage }: PaginationProps) => {
           <Link href={`/page/${currentPage + 1}`} passHref>
             <button
               rel="newer"
-              className="transform hover:text-zinc-600 hover:dark:text-zinc-300"
+              className="transform hover:text-blue-400 hover:dark:text-blue-400"
             >
               Older
             </button>

@@ -24,7 +24,6 @@ as in the following example:
 ```
 query variableTest ($ continent: [String]!) {
 countries (filter: {continent: {in: $ continent}}) {
-name
   languages ​​{
     name
   }
@@ -38,13 +37,9 @@ variables {
 
 {" "}
 
-<br />
-
 ## Directives
 
 {" "}
-
-<br />
 
 The directives are used to describe the behavior of the query or mutation requests. They always start with the `@` symbol. According to the GraphQL specification, they are used in places after the expression `on` and before the `{` symbol.
 Directives are an additional option in the GraphQL schema language that defines what should be returned in the response. There are two types of directives:
@@ -89,13 +84,9 @@ The **@deprecated** directive is used to mark a field as deprecated and display 
 
 {" "}
 
-<br />
-
 ## Fragments
 
 {" "}
-
-<br />
 
 A fragment is a way to define a reusable piece of a GraphQL query. It is used to define the fields that are common to multiple queries and to avoid repeating the same fields in multiple queries.
 

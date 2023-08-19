@@ -14,7 +14,6 @@ export const generateStaticParams = async () => {
 
 const Page = ({ params }: { params: { page: string } }) => {
   const pageNumber = parseInt(params.page as string);
-  console.log("Page", pageNumber);
 
   return (
     <>

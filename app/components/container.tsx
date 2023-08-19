@@ -16,7 +16,7 @@ const Container: React.FC<React.PropsWithChildren<Props>> = ({ children }) => {
         <div>
           <div>
             <img
-              src="/avatar.jpg"
+              src="https://res.cloudinary.com/dragardelo/image/upload/v1640084867/blog/SlikaLinkedin_aonobz.webp"
               alt="Avatar"
               className="w-8 h-8 md:w-10 md:h-10 lg:w-16 lg:h-16 rounded-full"
             />
