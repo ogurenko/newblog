@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import MDXComponents from "../../components/mdxComponents";
+import MDXComponents from "../../components/mdx-components";
 import { allPosts } from "contentlayer/generated";
 
 interface PageProps {
