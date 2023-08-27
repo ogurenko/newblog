@@ -9,15 +9,20 @@ export const Analytics = (props: ScriptProps) => {
         strategy="lazyOnload"
         src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}`}
       />
-      <Script id="gtag2" strategy="afterInteractive">
-        {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments)}
-              gtag('js', new Date());
-              gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}',
-              { page_path: window.location.pathname });
-        `}
-      </Script>
+      <Script
+        id="gtag2"
+        strategy="afterInteractive"
+        dangerouslySetInnerHTML={{
+          __html: `
+                      window.dataLayer = window.dataLayer || [];
+                      function gtag(){dataLayer.push(arguments);}
+                      gtag('js', new Date());
+                      gtag('config', '${process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS}', {
+                      page_path: window.location.pathname,
+                      });
+                    `,
+        }}
+      />
     </>
   );
 };
